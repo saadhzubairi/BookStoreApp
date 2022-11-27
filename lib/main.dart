@@ -1,21 +1,29 @@
+import 'package:assignment4/get_book_name.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'book_model.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'book_model.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Library'),
     );
   }
 }
@@ -30,14 +38,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  /*final db = FirebaseFirestore.instance;
+  List<String> docIDs = [];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  Future fetchData() async {
+    await db.collection("MyLibrary").get().then(
+          (snapshot) => snapshot.docs.forEach(
+            (document) {
+              docIDs.add(document.reference.id);
+            },
+          ),
+        );
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,23 +58,33 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        child: ListView(
+          children: books.map((e) => BookTile(book: e)).toList(),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton:
+          FloatingActionButton(onPressed: () {}, child: Text("hi")),
+    );
+  }
+}
+
+class BookTile extends StatelessWidget {
+  final Book book;
+
+  const BookTile({required this.book, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 1),
+      child: ListTile(
+        leading: CircleAvatar(
+          radius: 30.0,
+          backgroundImage:
+          NetworkImage(book.imageURL.toString()),
+          backgroundColor: Colors.transparent,
+        ),
+        title: Text(book.name.toString(),style: TextStyle(fontWeight: FontWeight.bold),),
       ),
     );
   }
